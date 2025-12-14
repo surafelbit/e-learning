@@ -1,8 +1,8 @@
 {
-  "buildCommand": "npm run build",
+  "buildCommand": "npm run vercel-build",
   "outputDirectory": ".output/public",
   "devCommand": "npm run dev",
-  "installCommand": "npm install --ignore-scripts",
+  "installCommand": "npm install --legacy-peer-deps",
   "framework": "nuxtjs",
   "rewrites": [
     {
@@ -11,5 +11,4 @@
     }
   ]
 }
-
 

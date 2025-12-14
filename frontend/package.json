@@ -3,10 +3,12 @@
   "type": "module",
   "private": true,
   "scripts": {
+    "prebuild": "npm install --no-save @oxc-parser/binding-linux-x64-gnu 2>/dev/null || true",
     "build": "nuxt build",
     "dev": "nuxt dev",
     "generate": "nuxt generate",
-    "preview": "nuxt preview"
+    "preview": "nuxt preview",
+    "vercel-build": "npm run build"
   },
   "dependencies": {
     "@nuxtjs/supabase": "^2.0.3",

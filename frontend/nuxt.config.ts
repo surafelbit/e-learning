@@ -19,10 +19,6 @@ export default defineNuxtConfig({
   },
   compatibilityDate: '2024-11-01',
   devtools: { enabled: true },
-  // Disable experimental features that might cause build issues
-  experimental: {
-    watcher: false
-  },
   vite: {
     server: {
       fs: {
