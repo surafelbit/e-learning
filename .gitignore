@@ -6,6 +6,8 @@ node_modules
 .nuxt
 dist
 build
+backend/dist
+frontend/.output
 
 # Environment variables
 .env
