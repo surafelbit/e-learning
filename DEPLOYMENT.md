@@ -103,7 +103,9 @@ This guide will walk you through deploying both the frontend and backend of Brai
 
 ## Step 2: Deploy the Frontend
 
-### Option A: Deploy to Vercel (Recommended)
+### Option A: Deploy to Vercel (Recommended - Best for Frontend)
+
+**Note**: Vercel is optimized for frontend frameworks like Nuxt and provides the best experience. Render is better suited for backend services.
 
 1. **Create a Vercel Account**
    - Go to [vercel.com](https://vercel.com) and sign up
@@ -159,6 +161,35 @@ This guide will walk you through deploying both the frontend and backend of Brai
 5. **Deploy**
    - Click "Deploy site"
    - Copy your frontend URL
+
+### Option C: Deploy Frontend to Render (Alternative)
+
+**Note**: While Render works, Vercel/Netlify are better optimized for frontend. Use this option if you prefer to keep everything on Render.
+
+1. **Create a Static Site on Render**
+   - Go to [render.com](https://render.com)
+   - Click "New +" → "Static Site"
+   - Connect your GitHub repository
+
+2. **Configure the Static Site**
+   - **Name**: `brainbite-frontend`
+   - **Root Directory**: `frontend`
+   - **Build Command**: `npm install && npm run build`
+   - **Publish Directory**: `.output/public`
+
+3. **Add Environment Variables**
+   ```
+   NUXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+   NUXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+   NUXT_PUBLIC_BACKEND_URL=https://your-backend-url.onrender.com
+   ```
+
+4. **Deploy**
+   - Click "Create Static Site"
+   - Wait for build to complete
+   - Copy your frontend URL
+
+**Important Fix Applied**: The `postinstall` script has been removed from `package.json` to fix the native binding error (`oxc-parser`) that occurs on Render's Linux environment. The build process will handle preparation automatically.
 
 ## Step 3: Update Environment Variables
 
