@@ -17,7 +17,7 @@ export default defineNuxtConfig({
       NUXT_PUBLIC_SUPABASE_ANON_KEY: process.env.SUPABASE_KEY,
     }
   },
-  compatibilityDate: '2024-11-01',
+  compatibilityDate: '2024-01-01',
   devtools: { enabled: true },
   vite: {
     server: {

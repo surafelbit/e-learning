@@ -1,8 +1,8 @@
 {
-  "buildCommand": "npm install --include=optional @oxc-parser/binding-linux-x64-gnu --no-save && npm run build",
+  "buildCommand": "npm run build",
   "outputDirectory": ".output/public",
   "devCommand": "npm run dev",
-  "installCommand": "npm install --include=optional",
+  "installCommand": "npm install",
   "framework": "nuxtjs",
   "rewrites": [
     {
