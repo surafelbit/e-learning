@@ -16,7 +16,7 @@ export default defineNuxtConfig({
     public: {
       backendUrl: 'https://e-learning-4-f386.onrender.com',
     }
-  },
+  },//ok
   compatibilityDate: '2024-01-01',
   devtools: { enabled: true },
   vite: {
