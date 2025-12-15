@@ -8,7 +8,11 @@ export class AIService {
     private openai: OpenAI;
 
     constructor(private configService: ConfigService) {
-        const apiKey = this.configService.get<string>('AI_API_KEY');
+        // Try env first, otherwise no key (will fall back to mock data)
+        const apiKey =
+            this.configService.get<string>('AI_API_KEY') ||
+            process.env.AI_API_KEY ||
+            '';
         if (apiKey) {
             // Support both OpenAI and Groq APIs
             const baseURL = apiKey.startsWith('gsk_') 
