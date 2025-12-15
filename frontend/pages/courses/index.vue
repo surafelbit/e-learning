@@ -5,11 +5,19 @@ const user = useSupabaseUser()
 const client = useSupabaseClient()
 const router = useRouter()
 
-// Use useFetch to call NestJS backend
+// Only allow access if logged in, otherwise send back to login
+const { data: sessionData } = await client.auth.getSession()
+const session = sessionData.session
+
+if (!session) {
+  router.push('/login')
+}
+
+// Use useFetch to call NestJS backend (only when we have a valid session)
 const { data: courses, error, refresh } = await useFetch(`${config.public.backendUrl}/courses`, {
-    headers: {
-        Authorization: `Bearer ${(await client.auth.getSession()).data.session?.access_token}`
-    }
+  headers: {
+    Authorization: `Bearer ${session?.access_token}`,
+  },
 })
 
 const logout = async () => {

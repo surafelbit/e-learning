@@ -10,7 +10,15 @@ export class AIService {
     constructor(private configService: ConfigService) {
         const apiKey = this.configService.get<string>('AI_API_KEY');
         if (apiKey) {
-            this.openai = new OpenAI({ apiKey });
+            // Support both OpenAI and Groq APIs
+            const baseURL = apiKey.startsWith('gsk_') 
+                ? 'https://api.groq.com/openai/v1'
+                : undefined; // Use default OpenAI endpoint
+            
+            this.openai = new OpenAI({ 
+                apiKey,
+                baseURL 
+            });
         }
     }
 
@@ -21,51 +29,94 @@ export class AIService {
         }
 
         const prompt = `
-      Generate a course about "${subject}".
-      Return ONLY a valid JSON object with this structure:
-      {
-        "title": "Course Title",
-        "description": "Short description",
-        "pages": [
-          { "title": "Page 1 Title", "content_md": "Markdown content for page 1..." },
-          { "title": "Page 2 Title", "content_md": "Markdown content for page 2..." },
-          { "title": "Page 3 Title", "content_md": "Markdown content for page 3..." },
-          { "title": "Page 4 Title", "content_md": "Markdown content for page 4..." }
-        ],
-        "questions": [
-          {
-            "question_text": "Question 1 text",
-            "type": "mcq",
-            "options": [
-              { "option_text": "Option A", "is_correct": true },
-              { "option_text": "Option B", "is_correct": false },
-              { "option_text": "Option C", "is_correct": false }
-            ]
-          },
-          {
-            "question_text": "Question 2 text",
-            "type": "mcq",
-            "options": [
-              { "option_text": "Option X", "is_correct": true },
-              { "option_text": "Option Y", "is_correct": false }
-            ]
-          }
-        ]
-      }
+Create an engaging educational course about "${subject}".
+
+Generate a complete mini-course with 4 chapters and a quiz. Each chapter should have substantial educational content (at least 3-4 paragraphs) in Markdown format.
+
+IMPORTANT: Return ONLY a valid JSON object with NO additional text or explanation. Use this EXACT structure:
+
+{
+  "title": "An engaging course title about ${subject}",
+  "description": "A compelling 1-2 sentence description of what students will learn",
+  "pages": [
+    {
+      "title": "Chapter 1: Introduction to ${subject}",
+      "content_md": "# Introduction\n\nDetailed markdown content with multiple paragraphs explaining the fundamentals. Include practical examples and clear explanations.\n\n## Key Concepts\n\n- Bullet point 1\n- Bullet point 2\n\nMore detailed content..."
+    },
+    {
+      "title": "Chapter 2: [Relevant Topic]",
+      "content_md": "Comprehensive markdown content for chapter 2 with headings, paragraphs, and examples"
+    },
+    {
+      "title": "Chapter 3: [Advanced Topic]",
+      "content_md": "In-depth markdown content for chapter 3 covering more complex aspects"
+    },
+    {
+      "title": "Chapter 4: Practical Application",
+      "content_md": "Real-world applications, best practices, and summary of key takeaways"
+    }
+  ],
+  "questions": [
+    {
+      "question_text": "A clear, specific question testing understanding of chapter 1-2 content",
+      "type": "mcq",
+      "options": [
+        { "option_text": "Correct answer with clear reasoning", "is_correct": true },
+        { "option_text": "Plausible but incorrect option", "is_correct": false },
+        { "option_text": "Another incorrect but reasonable option", "is_correct": false },
+        { "option_text": "Third incorrect option", "is_correct": false }
+      ]
+    },
+    {
+      "question_text": "Another question testing understanding of chapter 3-4 content",
+      "type": "mcq",
+      "options": [
+        { "option_text": "First option", "is_correct": false },
+        { "option_text": "Correct answer", "is_correct": true },
+        { "option_text": "Third option", "is_correct": false },
+        { "option_text": "Fourth option", "is_correct": false }
+      ]
+    },
+    {
+      "question_text": "A third question covering core concepts",
+      "type": "mcq",
+      "options": [
+        { "option_text": "Option A", "is_correct": false },
+        { "option_text": "Option B", "is_correct": false },
+        { "option_text": "Correct option C", "is_correct": true },
+        { "option_text": "Option D", "is_correct": false }
+      ]
+    }
+  ]
+}
     `;
 
         try {
+            // Determine which model to use based on API key
+            const apiKey = this.configService.get<string>('AI_API_KEY');
+            const model = apiKey?.startsWith('gsk_') 
+                ? 'llama-3.3-70b-versatile' // Groq model
+                : 'gpt-3.5-turbo'; // OpenAI model
+
             const completion = await this.openai.chat.completions.create({
-                messages: [{ role: 'system', content: 'You are a helpful education assistant.' }, { role: 'user', content: prompt }],
-                model: 'gpt-3.5-turbo',
+                messages: [
+                    { role: 'system', content: 'You are a helpful education assistant. Always respond with valid JSON.' }, 
+                    { role: 'user', content: prompt }
+                ],
+                model: model,
                 response_format: { type: 'json_object' },
+                temperature: 0.7,
             });
 
             const content = completion.choices[0].message.content;
             if (!content) throw new Error('No content generated');
-            return JSON.parse(content);
+            
+            const parsed = JSON.parse(content);
+            console.log('AI Course Generated Successfully:', parsed.title);
+            return parsed;
         } catch (error) {
-            console.error('AI Generation Warning:', error);
+            console.error('AI Generation Error:', error);
+            console.log('Falling back to mock data');
             return this.getMockCourseData(subject);
         }
     }

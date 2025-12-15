@@ -14,7 +14,8 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     public: {
-      backendUrl: 'https://e-learning-1-qvk8.onrender.com',
+      // backendUrl: 'https://e-learning-1-qvk8.onrender.com', // PROD
+      backendUrl: 'http://localhost:5000', // LOCAL DEV
     }
   },
   compatibilityDate: '2024-01-01',

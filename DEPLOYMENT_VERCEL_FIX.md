@@ -47,3 +47,4 @@ The following files have been updated:
 Try deploying again. If it still fails, use Option 1 to configure directly in Vercel dashboard.
 
 
+

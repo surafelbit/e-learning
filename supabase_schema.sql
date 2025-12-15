@@ -119,3 +119,25 @@ create policy "Options viewable if course is viewable"
       and (c.is_published = true or c.created_by = auth.uid())
     )
   );
+
+-- INSERT policies for questions and options
+create policy "Creators can insert questions"
+  on public.questions for insert
+  with check (
+    exists (
+      select 1 from public.courses
+      where id = course_id
+      and created_by = auth.uid()
+    )
+  );
+
+create policy "Creators can insert question options"
+  on public.question_options for insert
+  with check (
+    exists (
+      select 1 from public.questions q
+      join public.courses c on c.id = q.course_id
+      where q.id = question_id
+      and c.created_by = auth.uid()
+    )
+  );

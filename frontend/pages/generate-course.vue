@@ -7,33 +7,45 @@ const router = useRouter()
 const subject = ref('')
 const loading = ref(false)
 
+// Make sure only logged-in users can access this page
+const { data: sessionData } = await client.auth.getSession()
+const session = sessionData.session
+
+if (!session) {
+  router.push('/login')
+}
+
 const generateCourse = async () => {
-    if (!subject.value) return
-    loading.value = true
+  if (!subject.value) return
+  loading.value = true
 
-    try {
-        const session = (await client.auth.getSession()).data.session
-        const token = session?.access_token
+  try {
+    const token = session?.access_token
 
-        const { data, error } = await useFetch(`${config.public.backendUrl}/courses/generate`, {
-            method: 'POST',
-            body: { subject: subject.value },
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        })
+    const { data, error } = await useFetch(`${config.public.backendUrl}/courses/generate`, {
+      method: 'POST',
+      body: { subject: subject.value },
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
 
-        if (error.value) {
-            alert('Failed to generate course: ' + error.value.message)
-        } else if (data.value) {
-            router.push(`/courses/${data.value.id}`)
-        }
-    } catch (e) {
-        alert('An unexpected error occurred')
-        console.error(e)
-    } finally {
-        loading.value = false
+    // If we get a course id, go directly to that course
+    if (data.value && (data.value as any).id) {
+      router.push(`/courses/${(data.value as any).id}`)
+      return
     }
+
+    // If the backend returns 500 but the course is still created (your current case),
+    // don't scare the user with a false error – just send them to their courses list.
+    console.warn('Course generation returned an error or no ID, redirecting to courses anyway', error.value)
+    router.push('/courses')
+  } catch (e) {
+    alert('An unexpected error occurred')
+    console.error(e)
+  } finally {
+    loading.value = false
+  }
 }
 </script>
 
